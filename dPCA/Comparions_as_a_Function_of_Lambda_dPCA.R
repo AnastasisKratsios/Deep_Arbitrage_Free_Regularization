@@ -107,7 +107,7 @@ AFReg_Loss<-function(W.dummy,lambda.AFreg=2){
     #---------------------------------------------#
     #---------------------------------------------#
     # Evaluates 0th Order Fit
-    goodness.of.fit<-(dPCA.samples[,-1]-Reservoir%*%W.dummy)
+    goodness.of.fit<-(dPCA.samples-Reservoir%*%W.dummy)
     goodness.of.fit<-as.vector(goodness.of.fit)
     goodness.of.fit<-sqrt(sum(goodness.of.fit^p.Lp))
     #---------------------------------------------#  
@@ -173,7 +173,7 @@ AFReg_Loss<-function(W.dummy,lambda.AFreg=2){
   #################################################
   #################################################
   ## Externally-based/Auxiliary SGD Parameters
-  N.basis<-(ncol(dPCA.samples)-1)
+  N.basis<-ncol(dPCA.samples)
   set.seed(0)
   #-------------#
   ####  SGD  ####
@@ -187,7 +187,7 @@ AFReg_Loss<-function(W.dummy,lambda.AFreg=2){
   m.pars.ini<-colMeans(pars)
   s.pars.ini<-apply(pars,2,sd)
   # Initialize Target Data
-  Target.AF.Reg<-dPCA.samples[,-1];colnames(Target.AF.Reg)<-c();colnames(Reservoir)<-c()
+  Target.AF.Reg<-dPCA.samples;colnames(Target.AF.Reg)<-c();colnames(Reservoir)<-c()
   
   
   # Initialize SGD History
