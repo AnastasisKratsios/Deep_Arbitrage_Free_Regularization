@@ -12,5 +12,5 @@ or
 depending on which model to test.  
 
 # Important:
-Both the Nelson-Siegel and dynamic PCA experiments should be run separately since they share common portions of the code.  Failure to do so will corrupt one of the two predictions!
+Both the Nelson-Siegel and dynamic PCA experiments should be run separately.  
 
