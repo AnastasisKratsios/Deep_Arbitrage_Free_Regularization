@@ -11,6 +11,6 @@ or
 *Run Main_dPCA*
 depending on which model to test.  
 
-# Important:
+### Important:
 Both the Nelson-Siegel and dynamic PCA experiments should be run separately.  
 
