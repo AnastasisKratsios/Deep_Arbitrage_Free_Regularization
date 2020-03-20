@@ -4,7 +4,7 @@
 # 2) Deep_Arbitrage_Free_Regularization
 
 ##########------######################---#
-# AF-Reg: Kalman Filter for dNS Model
+# AF-Reg: Kalman Filter for dPCA Model
 ###########--###--######-##-##########---#
 # OUTLINE
 # A) Read Data

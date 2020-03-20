@@ -26,7 +26,7 @@ spliceddata<-YC.DEU
 wd<-getwd() 
 source(paste(wd,"Initializations.R",sep="/")) # Initialize
 
-# Nelson-Siegel Models
+# dPCA Models
 source(paste(wd,"PCA_Kalman_full.R",sep="/")) # Nelson-Siegel Model
 source(paste(wd,"SGD.R",sep="/")) # Loads SGD Code
 source(paste(wd,"Deep_Arbitrage_Free_Regularization_full_PCA.R",sep="/")) # AF-Regularization of AFNS
