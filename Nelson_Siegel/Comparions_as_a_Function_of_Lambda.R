@@ -2,7 +2,7 @@
 # Learning Stage
 ######################---#
 # Initialize Lambda Sequence
-Lambda_seq = seq(from=(10^(-7)),to=(1- 10^(-7)),length.out = (10^4))
+Lambda_seq = seq(from=(10^(-7)),to=(1- 10^(-7)),length.out = (10^2))
 
 
 #---------#       #-#        #---------#
@@ -497,9 +497,6 @@ print((i.lambda/length(Lambda_seq)))
 #--------------#
 rownames(Lambda_comparisons)<-Lambda_to_date
 rownames(Lambda_comparisons_Bond_Prices)<-Lambda_to_date
-# Save Table
-save(as.data.frame(Lambda_comparisons), file = "Lambda_Comparisons_File.RData")
-save(as.data.frame(Lambda_comparisons_Bond_Prices), file = "Lambda_Comparisons_File_Bond_Prices.RData")
 
 
 # Write Tables
@@ -527,7 +524,7 @@ test_data_long <- melt(data_plot, id="Lambdas")  # convert to long format
 ggplot(data=test_data_long,
        aes(x=Lambdas, y=value, colour=variable)) +
       geom_line() +
-  labs(x ="Lambdas", y = "Day-Ahead Bond-Price", color="Maturities") +
+  labs(x ="Lambdas", y = "Prediction MSE", color="Maturities") +
   scale_color_hue(l=40, c=35)
 
 
@@ -546,7 +543,13 @@ test_data_long2 <- melt(data_plot2, id="Lambdas")  # convert to long format
 # Generate (gg)plot(2)
 ggplot(data=test_data_long2,
        aes(x=Lambdas, y=value, colour=variable)) +
-  geom_line() +
-  labs(x ="Lambdas", y = "Day-Ahead Bond-Price", color="Maturities") +
+      geom_line() +
+  labs(x ="Lambdas", y = "Day-Ahead Bond Price", color="Maturities") +
   scale_color_hue(l=40, c=35)
 
+
+# Save Output Data
+#-----------------#
+# Save Table
+save(Lambda_comparisons, file = "Lambda_Comparisons_File.RData")
+save(Lambda_comparisons_Bond_Prices, file = "Lambda_Comparisons_File_Bond_Prices.RData")
