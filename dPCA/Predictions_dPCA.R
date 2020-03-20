@@ -1,7 +1,7 @@
 # Initialize one-day ahead predicted bond prices!
-bond.prices.Vasicek.HJM.Kalman<-matrix(data=NA,nrow=N,ncol=d)
-colnames(bond.prices.Vasicek.HJM.Kalman)<-Maturities.Grid
-#rownames(bond.prices.Vasicek.HJM.Kalman)<-round(dates[-1],1)
+bond.prices.dPCA_AF.high.Kalman<-matrix(data=NA,nrow=N,ncol=d)
+colnames(bond.prices.dPCA_AF.high.Kalman)<-Maturities.Grid
+
 bond.prices.dPCA_AF.high.Kalman<-bond.prices.dPCA.Kalman<-bond.prices.NS.AF.Reg.HJM.Kalman<-bond.prices.AFNS.HJM.Kalman<-bond.prices.NS.HJM.Kalman<-bond.prices.Vasicek.HJM.Kalman
 # Initialize Bond Pricing Errors
 bond.prices.dPCA_AF.high.Kalman.error<-bond.prices.dPCA.Kalman.error<-bond.prices.NS.AF.Reg.HJM.Kalman.errors<-bond.prices.AFNS.HJM.Kalman.errors<-bond.prices.NS.HJM.Kalman.errors<-bond.prices.Vasicek.HJM.Kalman.errors<-bond.prices.Vasicek.HJM.Kalman
@@ -9,9 +9,6 @@ bond.prices.dPCA_AF.high.Kalman.error<-bond.prices.dPCA.Kalman.error<-bond.price
 
 # Populate Matrix of one-day ahead predicted bond prices
 for(t.i in 1:(nrow(bond.prices.Vasicek.HJM.Kalman.errors))){
-  # Filter Short Rate for Vasicek
-  #KF_Vasicek_loop<-vasicek_KF(observations = bond.data[t.i,])
-  r.predict<-as.vector(KF_Vasicek_loop$att)
   
   # Filter betas for dPCA
   dPCA_loop<-dPCA_KF(observations = bond.data[t.i,])
@@ -19,14 +16,9 @@ for(t.i in 1:(nrow(bond.prices.Vasicek.HJM.Kalman.errors))){
   AF_dPCA.high_loop<-AFReg_dPCA_KF(observations = bond.data[t.i,])
   
   
-  # Write FRCs
-  # Write Predicted FRC for Vasicek
-  FRC.Vas.HJM.loop<-rep(NA,d)
-  for(u in 1:d){
-    FRC.Vas.HJM.loop[u]<-FRC.Vasicek(r.predict,1)
-  }
+  
   # Write for dPCA Models
-  FRC.dPCA.loop<-as.vector(dPCA.samples[,-1]%*%(dPCA_loop$att))
+  FRC.dPCA.loop<-as.vector(dPCA.samples%*%(dPCA_loop$att))
   FRC.dPCA.AF.Reg.loop<-as.vector(AF.Reg.Factors.PCA%*%(AF_dPCA.high_loop$att))
   
   
@@ -51,21 +43,11 @@ for(t.i in 1:(nrow(bond.prices.Vasicek.HJM.Kalman.errors))){
 
 
 # MSEs
-MSE.dPCA.errors<-rbind(colMeans(bond.prices.Vasicek.HJM.Kalman.errors^2),
-                     colMeans(bond.prices.dPCA.Kalman.error^2),
+MSE.dPCA.errors<-rbind(colMeans(bond.prices.dPCA.Kalman.error^2),
                      colMeans(bond.prices.dPCA_AF.high.Kalman.error^2))
-rownames(MSE.dPCA.errors)<-c("Vsk","dPCA","AF-Reg(dPCA)")
+rownames(MSE.dPCA.errors)<-c("dPCA","AF-Reg(dPCA)")
 round(MSE.dPCA.errors,3)
 
-# Compute Error Statistics
-mean.errors<-colMeans(bond.prices.Vasicek.HJM.Kalman.errors)
-conf.bound<-(qnorm(0.95)/sqrt(N))*apply(bond.prices.Vasicek.HJM.Kalman.errors,2,sd)
-error.statistics<-rbind(mean.errors-conf.bound,mean.errors,mean.errors+conf.bound)
-rownames(error.statistics)<-c("L 95","Mean Err.","U 95")
-
-# Report Findings
-head(round(bond.prices.Vasicek.HJM.Kalman,3))
-round(error.statistics,3)
 
 if(FALSE){
   cat("\014")
@@ -98,11 +80,10 @@ if(FALSE){
   )
 }
 ###
-# Difference Between NS, AFNS, AFReg(NS)
-differences<-rbind(colMeans((bond.prices.NS.HJM.Kalman-bond.prices.AFNS.HJM.Kalman)/bond.prices.NS.HJM.Kalman),
-                   colMeans((bond.prices.NS.HJM.Kalman-bond.prices.NS.AF.Reg.HJM.Kalman)/bond.prices.NS.HJM.Kalman))
+# Difference Models
+differences<-rbind(colMeans((bond.prices.dPCA.Kalman-bond.prices.NS.AF.Reg.HJM.Kalman)/bond.prices.NS.HJM.Kalman))
 colnames(differences)<-Maturities.Grid
-rownames(differences)<-c("(NS-AFNS)/NS","(NS-AFReg(NS))/NS")
+rownames(differences)<-c("(dPCA-A-Reg(dPCA))/dPCA")
 
 if(FALSE){
   cat("\014")

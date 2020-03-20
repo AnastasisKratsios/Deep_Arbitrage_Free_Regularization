@@ -5,8 +5,8 @@ N.factors<-3
 # OUTLINE
 # A) Read Data
 # B) Load Packages
-# C) Estimate dNS Parameters
-# D) Write dNS Kalman Filtering Function
+# C) Estimate dPCA Parameters
+# D) Write dPCA Kalman Filtering Function
 # E) Predict (external)
 
 
@@ -116,7 +116,7 @@ close(pb)
 Estimated.OU.Parameters.Betas.PCA<-FitOrnsteinUhlenbeck(betas.mat,1)
 Estimated.OU.Parameters.Betas.PCA
 
-# Add intercept
+# Add intercept & Remove Dates Column
 dPCA.samples<-cbind(rep(1,nrow(dPCA.samples)),dPCA.samples[,-1])
 
 #-############ -----------------------------------################-#
@@ -128,7 +128,7 @@ dPCA.samples<-cbind(rep(1,nrow(dPCA.samples)),dPCA.samples[,-1])
 #-############ -----------------------------------################-#
 # Random initialization of parameters
 lambda_init <- runif(m, min=-1.0, max=1.0)
-measurement_err_init.NS <- diag(runif(d, 
+measurement_err_init.dPCA <- diag(runif(d, 
                               min=0.0, 
                               max=sqrt(sum((eigen(Estimated.OU.Parameters.Betas.PCA$Sigma)$values)^2))
                               ))
@@ -138,33 +138,33 @@ measurement_err_init.NS <- diag(runif(d,
 dPCA_KF <- function(observations)
 { 
   # initial state variable (a0: m x 1)
-  r_init.NS <- as.vector(Estimated.OU.Parameters.Betas.PCA$Mu)
+  r_init.dPCA <- as.vector(Estimated.OU.Parameters.Betas.PCA$Mu)
   
   # variance of state variable (P0: m x m)
-  P_init.NS <- t(Estimated.OU.Parameters.Betas.PCA$Sigma)%*%Estimated.OU.Parameters.Betas.PCA$Sigma
-  P_init.NS <- .5*P_init.NS
+  P_init.dPCA <- t(Estimated.OU.Parameters.Betas.PCA$Sigma)%*%Estimated.OU.Parameters.Betas.PCA$Sigma
+  P_init.dPCA <- .5*P_init.dPCA
   
   # intercept of state transition equation (dt: m x 1)
-  C.NS <- (Estimated.OU.Parameters.Betas.PCA$Theta)%*%(Estimated.OU.Parameters.Betas.PCA$Mu)
+  C.dPCA <- (Estimated.OU.Parameters.Betas.PCA$Theta)%*%(Estimated.OU.Parameters.Betas.PCA$Mu)
   
   # factor of transition equation (Tt: m x m x 1)
-  Tt.NS <- -Estimated.OU.Parameters.Betas.PCA$Theta
+  Tt.dPCA <- -Estimated.OU.Parameters.Betas.PCA$Theta
   
   # factor of measurement equation (Zt: d x m x 1)
-  B.NS <- dPCA.samples
+  B.dPCA <- dPCA.samples
   
   # intercept of measurement equation (ct: d x 1)
-  A.NS <- rep(0,d)
+  A.dPCA <- rep(0,d)
   
   
   # variance of innovations of transition (HHt: m x m x 1)
-  Q.NS <- t(Estimated.OU.Parameters.Betas.PCA$Sigma)%*%Estimated.OU.Parameters.Betas.PCA$Sigma
+  Q.dPCA <- t(Estimated.OU.Parameters.Betas.PCA$Sigma)%*%Estimated.OU.Parameters.Betas.PCA$Sigma
   
   # variance of measurement error (GGt: d x d x 1)
-  R.NS <- array(measurement_err_init.NS,dim=c(d,d,1))
+  R.dPCA <- array(measurement_err_init.dPCA,dim=c(d,d,1))
   
-  filtered_process <- fkf(a0=r_init.NS, P0=P_init.NS, dt=C.NS, ct=as.matrix(A.NS), Tt=Tt.NS, 
-                          Zt=B.NS, HHt=Q.NS, GGt=R.NS, yt=as.matrix(observations))
+  filtered_process <- fkf(a0=r_init.dPCA, P0=P_init.dPCA, dt=C.dPCA, ct=as.matrix(A.dPCA), Tt=Tt.dPCA, 
+                          Zt=B.dPCA, HHt=Q.dPCA, GGt=R.dPCA, yt=as.matrix(observations))
   return(filtered_process)
 }
 

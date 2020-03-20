@@ -600,3 +600,5 @@ W.optimal<-W.dummy.temp
 AF.Reg.Factors.PCA<-Reservoir%*%W.optimal
 
 
+# Unload Maturities from dPCA Samples
+dPCA.samples<-dPCA.samples[,-1]
