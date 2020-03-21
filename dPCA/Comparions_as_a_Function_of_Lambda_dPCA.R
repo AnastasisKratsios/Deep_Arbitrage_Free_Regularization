@@ -2,7 +2,7 @@
 # Learning Stage
 ######################---#
 # Initialize Lambda Sequence
-Lambda_seq = seq(from=(10^(-7)),to=(1- 10^(-7)),length.out = 3)
+Lambda_seq = seq(from=(10^(-7)),to=(1- 10^(-7)),length.out = (10^2))
 
 
 #---------#       #-#        #---------#
@@ -386,7 +386,7 @@ AFReg_Loss<-function(W.dummy,lambda.AFreg=2){
     
     # Write Bond prices
     prices.dPCA.loop<-exp(-cumsum(FRC.dPCA.loop))
-    prices.dPCA_REG.loop<-exp(-cumsum(FRC.NS.loop))
+    prices.dPCA_REG.loop<-exp(-cumsum(FRC.dPCA.loop))
     
     
     # Write Predicted Bond Prices
@@ -418,12 +418,12 @@ MSE.dPCA.errors_bond<-colMeans(bond.prices.dPCA_AF.high.Kalman)
 
 
 # Update Readings
-Lambda_comparisons_dPCA<-rbind(Lambda_comparisons_dPCA,MSE.NS.errors)
-Lambda_comparisons_Bond_Prices_dPCA<-rbind(Lambda_comparisons_Bond_Prices_dPCA,MSE.NS.errors_bond)
+Lambda_comparisons_dPCA<-rbind(Lambda_comparisons_dPCA,MSE.dPCA.errors)
+Lambda_comparisons_Bond_Prices_dPCA<-rbind(Lambda_comparisons_Bond_Prices_dPCA,MSE.dPCA.errors_bond)
 Lambda_to_date<-sort(c(Lambda_to_date,lambda.AFreg.param.homotopic))
 
 # Update User
-print(MSE.NS.errors)
+print(MSE.dPCA.errors)
 print((i.lambda/length(Lambda_seq)))
 }
 
@@ -457,7 +457,7 @@ head(Lambda_comparisons_Bond_Prices_dPCA)
 #----------------------------------------------------------------#
 data_plot_dPCA = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons_dPCA))
 colnames(data_plot_dPCA) = c("Lambdas",Maturities.Grid)
-test_data_long_dPCA <- melt(test_data_long_dPCA, id="Lambdas")  # convert to long format
+test_data_long_dPCA <- melt(data_plot_dPCA, id="Lambdas")  # convert to long format
 
 # Generate (gg)plot(2)
 ggplot(data=test_data_long_dPCA,
@@ -477,10 +477,10 @@ Lambda_comparisons_Bond_Prices_dPCA = as.data.frame(Lambda_comparisons_Bond_Pric
 head(Lambda_comparisons)
 data_plot2_dPCA = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons_Bond_Prices_dPCA))
 colnames(data_plot2_dPCA) = c("Lambdas",Maturities.Grid)
-test_data_long2 <- melt(data_plot2, id="Lambdas")  # convert to long format
+test_data_long2_PCA <- melt(data_plot2_dPCA, id="Lambdas")  # convert to long format
 
 # Generate (gg)plot(2)
-ggplot(data=test_data_long2_dPCA,
+ggplot(data=test_data_long2_PCA,
        aes(x=Lambdas, y=value, colour=variable)) +
       geom_line() +
   labs(x ="Lambdas", y = "Day-Ahead Bond Price", color="Maturities") +
