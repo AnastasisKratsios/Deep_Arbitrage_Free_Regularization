@@ -54,16 +54,22 @@ p.Lp<-2
 RECALIBRATEPARAMETERS.Q<-TRUE
 
 
+
+# Set Working Directory
+wd<-"/scratch/users/kratsioa/Dropbox/Numerics/Deep_Arbitrage_Free_Regularization/Full_Version/dPCA"
+setwd(wd)
+
+
 # -------------------- #
 # Initialization
 # -------------------- #
 # Load initializations from other source files...
 if(!exists("NO.CHECK_Q")){
-  source(paste(wd,"Initializations.R",sep="/")) # Initialize
-  source(paste(wd,"PCA_Kalman_full.R",sep="/")) # Nelson-Siegel Model
-  source(paste(wd,"SGD.R",sep="/")) # Loads SGD Code
-  source(paste(wd,"Deep_Arbitrage_Free_Regularization_full_PCA.R",sep="/")) # AF-Regularization of AFNS
-  source(paste(wd,"AFREG_dPCA_Kalman_full.R",sep="/")) # Compiles Predictive Algorithm
+  source("Initializations.R") # Initialize
+  source("PCA_Kalman_full.R") # Nelson-Siegel Model
+  source("SGD.R") # Loads SGD Code
+  source("Deep_Arbitrage_Free_Regularization_full_PCA.R") # AF-Regularization of AFNS
+  source("AFREG_dPCA_Kalman_full.R") # Compiles Predictive Algorithm
 }
 
 
@@ -434,8 +440,8 @@ print((i.lambda/length(Lambda_seq)))
 
 # Format Data
 #--------------#
-rownames(Lambda_comparisons_dPCA)<-Lambda_to_date
-rownames(Lambda_comparisons_Bond_Prices_dPCA)<-Lambda_to_date
+rownames(Lambda_comparisons_dPCA)<-round(Lambda_seq,2)
+rownames(Lambda_comparisons_Bond_Prices_dPCA)<-round(Lambda_seq,2)
 
 
 # Write Tables
@@ -455,16 +461,19 @@ head(Lambda_comparisons_Bond_Prices_dPCA)
 #----------------------------------------------------------------#
 # Compare Change in Day-Ahead MSE
 #----------------------------------------------------------------#
-data_plot_dPCA = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons_dPCA))
-colnames(data_plot_dPCA) = c("Lambdas",Maturities.Grid)
-test_data_long_dPCA <- melt(data_plot_dPCA, id="Lambdas")  # convert to long format
+Colorss1 <- scales::seq_gradient_pal("red", "blue", "Lab")(seq(0,1,length.out=nrow(Lambda_comparisons_dPCA)))
+
+data_plot = as.data.frame(cbind(Maturities.Grid,t(Lambda_comparisons_dPCA)))
+colnames(data_plot)[1] = "Maturities"
+test_data_long <- melt(data_plot, id="Maturities")  # convert to long format
 
 # Generate (gg)plot(2)
-ggplot(data=test_data_long_dPCA,
-       aes(x=Lambdas, y=value, colour=variable)) +
-      geom_line() +
-  labs(x ="Lambdas", y = "Prediction MSE", color="Maturities") +
-  scale_color_hue(l=40, c=35)
+ggplot(data=test_data_long,
+       aes(x=Maturities, y=value, colour=variable)) +
+  geom_line() +
+  labs(x ="Maturities", y = "Day-Ahead Prediction MSE", color="Lambdas") +
+  #scale_color_hue(l=40, c=35)+
+  scale_colour_manual(values=Colorss1)
 
 
 
@@ -472,19 +481,24 @@ ggplot(data=test_data_long_dPCA,
 #----------------------------------------------------------------#
 # Compare Change in Predeicted Prices
 #----------------------------------------------------------------#
+Colorss <- scales::seq_gradient_pal("red", "blue", "Lab")(seq(0,1,length.out=nrow(Lambda_comparisons_dPCA)))
+
 # Write Data_Frame
+
 Lambda_comparisons_Bond_Prices_dPCA = as.data.frame(Lambda_comparisons_Bond_Prices_dPCA)
-head(Lambda_comparisons)
-data_plot2_dPCA = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons_Bond_Prices_dPCA))
-colnames(data_plot2_dPCA) = c("Lambdas",Maturities.Grid)
-test_data_long2_PCA <- melt(data_plot2_dPCA, id="Lambdas")  # convert to long format
+head(Lambda_comparisons_Bond_Prices_dPCA)
+data_plot2 = as.data.frame(cbind(Maturities.Grid,Lambda_comparisons_Bond_Prices_dPCA))
+colnames(data_plot2)[1] = "Maturities"
+test_data_long2 <- melt(data_plot2, id="Maturities")  # convert to long format
+
 
 # Generate (gg)plot(2)
-ggplot(data=test_data_long2_PCA,
-       aes(x=Lambdas, y=value, colour=variable)) +
-      geom_line() +
-  labs(x ="Lambdas", y = "Day-Ahead Bond Price", color="Maturities") +
-  scale_color_hue(l=40, c=35)
+ggplot(data=test_data_long2,
+       aes(x=Maturities, y=value, colour=variable)) +
+  geom_line() +
+  labs(x ="Maturities", y = "Average Day-Ahead Bond Yield",color="Lambda") +
+  theme(legend.position="none")+
+  scale_colour_manual(values=Colorss)
 
 
 # Save Output Data

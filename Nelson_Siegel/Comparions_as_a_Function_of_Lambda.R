@@ -34,8 +34,8 @@ Train.to.Test.ratio<-.1
 l1.pen<-.01
 l2.pen<-.02
 
-#
-wd<-"/scratch/users/kratsioa/Dropbox/Numerics/Deep_Arbitrage_Free_Regularization/Full_Version/Nelson_Siegel"
+# Set Working Directory
+wd<-"/scratch/users/kratsioa/Dropbox/Numerics/Deep_Arbitrage_Free_Regularization/Full_Version/Datasets"
 setwd(wd)
 
 
@@ -64,6 +64,7 @@ RECALIBRATEPARAMETERS.Q<-TRUE
 # Load initializations from other source files...
 if(!exists("NO.CHECK_Q")){
   # Nelson-Siegel Models
+  source("Initializations.R") # Initializations
   source("Vasicek_HJM_Kalman_full.R") # Nelson-Siegel Model
   source("NS_Kalman_full.R") # Nelson-Siegel Model
   source("AFNS_full.R") # AFNS Correction Term (Christiensen et al.)
@@ -504,8 +505,7 @@ print((i.lambda/length(Lambda_seq)))
 # Format Data
 #--------------#
 rownames(Lambda_comparisons)<-Lambda_to_date
-rownames(Lambda_comparisons_Bond_Prices)<-Lambda_to_date
-
+rownames(Lambda_comparisons_Bond_Prices)<-Lambda_seq
 
 # Write Tables
 #--------------#
@@ -524,16 +524,20 @@ head(Lambda_comparisons_Bond_Prices)
 #----------------------------------------------------------------#
 # Compare Change in Day-Ahead MSE
 #----------------------------------------------------------------#
-data_plot = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons))
-colnames(data_plot) = c("Lambdas",Maturities.Grid)
-test_data_long <- melt(data_plot, id="Lambdas")  # convert to long format
+Colorss1 <- scales::seq_gradient_pal("red", "blue", "Lab")(seq(0,1,length.out=nrow(Lambda_comparisons_dPCA)))
+
+data_plot = as.data.frame(cbind(Maturities.Grid,t(Lambda_comparisons)))
+colnames(data_plot) = c("Maturities",round(c(Lambda_seq),4))
+colnames(data_plot)[length(colnames(data_plot))] = Lambda_seq[length(Lambda_seq)]
+test_data_long <- melt(data_plot, id="Maturities")  # convert to long format
 
 # Generate (gg)plot(2)
 ggplot(data=test_data_long,
-       aes(x=Lambdas, y=value, colour=variable)) +
+       aes(x=Maturities, y=value, colour=variable)) +
       geom_line() +
-  labs(x ="Lambdas", y = "Prediction MSE", color="Maturities") +
-  scale_color_hue(l=40, c=35)
+  labs(x ="Maturities", y = "Day-Ahead Prediction MSE", color="Lambdas") +
+  #scale_color_hue(l=40, c=35)+
+  scale_colour_manual(values=Colorss1)
 
 
 
@@ -541,19 +545,22 @@ ggplot(data=test_data_long,
 #----------------------------------------------------------------#
 # Compare Change in Predeicted Prices
 #----------------------------------------------------------------#
+Colorss <- scales::seq_gradient_pal("red", "blue", "Lab")(seq(0,1,length.out=nrow(Lambda_comparisons)))
+
+
 # Write Data_Frame
 Lambda_comparisons_Bond_Prices = as.data.frame(Lambda_comparisons_Bond_Prices)
-head(Lambda_comparisons)
-data_plot2 = as.data.frame(cbind(Lambda_to_date,Lambda_comparisons_Bond_Prices))
-colnames(data_plot2) = c("Lambdas",Maturities.Grid)
-test_data_long2 <- melt(data_plot2, id="Lambdas")  # convert to long format
+data_plot2 = as.data.frame(cbind(Maturities.Grid,Lambda_comparisons_Bond_Prices))
+colnames(data_plot2)[1] = "Maturities"
+test_data_long2 <- melt(data_plot2, id="Maturities")  # convert to long format
 
 # Generate (gg)plot(2)
 ggplot(data=test_data_long2,
-       aes(x=Lambdas, y=value, colour=variable)) +
+       aes(x=Maturities, y=value, colour=variable)) +
       geom_line() +
-  labs(x ="Lambdas", y = "Day-Ahead Bond Price", color="Maturities") +
-  scale_color_hue(l=40, c=35)
+  labs(x ="Maturities", y = "Average Day-Ahead Bond Yield",color="Lambda") +
+  theme(legend.position="none")+
+  scale_colour_manual(values=Colorss)
 
 
 # Save Output Data
