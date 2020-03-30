@@ -34,6 +34,10 @@ Train.to.Test.ratio<-.1
 l1.pen<-.01
 l2.pen<-.02
 
+#
+wd<-"/scratch/users/kratsioa/Dropbox/Numerics/Deep_Arbitrage_Free_Regularization/Full_Version/Nelson_Siegel"
+setwd(wd)
+
 
 
 #---------#         #-#          #---------#
@@ -60,10 +64,12 @@ RECALIBRATEPARAMETERS.Q<-TRUE
 # Load initializations from other source files...
 if(!exists("NO.CHECK_Q")){
   # Nelson-Siegel Models
-  source(paste(wd,"NS_Kalman_full.R",sep="/")) # Nelson-Siegel Model
-  source(paste(wd,"AFNS_full.R",sep="/")) # AFNS Correction Term (Christiensen et al.)
-  source(paste(wd,"SGD.R",sep="/")) # Loads SGD Code
-  source(paste(wd,"Deep_Arbitrage_Free_Regularization_full.R",sep="/")) # AF-Regularization of AFNS
+  source("Vasicek_HJM_Kalman_full.R") # Nelson-Siegel Model
+  source("NS_Kalman_full.R") # Nelson-Siegel Model
+  source("AFNS_full.R") # AFNS Correction Term (Christiensen et al.)
+  source("SGD.R") # Loads SGD Code
+  Missing.Q = TRUE
+  source("Deep_Arbitrage_Free_Regularization_full.R") # AF-Regularization of AFNS
   source(paste(wd,"AFREG_NS_Kalman_full.R",sep="/")) # Compiles Predictive Algorithm
 }
 
@@ -442,7 +448,9 @@ bond.prices.NS.AF.Reg.HJM.Kalman.errors<-bond.prices.NS.HJM.Kalman.errors
 # Populate Matrix of one-day ahead predicted bond prices
 for(t.i in 1:(nrow(bond.prices.NS.AF.Reg.HJM.Kalman.errors))){
   # Write realised next day bond price
-  day.ahead.bond.price<-unlist(as.vector(exp(-(Maturities.Grid)*(bond.data[t.i,]))))
+  day.ahead.bond.price<-unlist(as.vector(exp(
+    cumsum((Maturities.Grid)*(bond.data[t.i,])))
+    ))
   
   # Filter betas 
   KF_NS_loop<-NS_KF(observations = bond.data[t.i,])
@@ -454,9 +462,9 @@ for(t.i in 1:(nrow(bond.prices.NS.AF.Reg.HJM.Kalman.errors))){
   
   
   # Write Bond prices
-  prices.NS.loop<-exp(-cumsum(FRC.NS.loop))
-  prices.NS.AF.Reg.loop<-exp(-cumsum(FRC.NS.AF.Reg.loop))
-  bond.prices.NS.HJM.Kalman[t.i,]<- 
+  prices.NS.loop<-exp(cumsum(FRC.NS.loop))
+  prices.NS.AF.Reg.loop<-exp(cumsum(FRC.NS.AF.Reg.loop))
+  bond.prices.NS.HJM.Kalman[t.i,]<- prices.NS.loop
   bond.prices.NS.AF.Reg.HJM.Kalman[t.i,]<- prices.NS.AF.Reg.loop
   # Write Errors
   bond.prices.NS.HJM.Kalman.errors[t.i,]<- (prices.NS.loop-day.ahead.bond.price)

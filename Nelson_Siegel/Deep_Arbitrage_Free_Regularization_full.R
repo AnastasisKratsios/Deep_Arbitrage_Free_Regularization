@@ -190,7 +190,7 @@ if(!exists("NO.CHECK_Q")){
   Missing.Q<-lapply(list.of.required.functions, exists) # Check if each function is loaded
   Missing.Q<-(min(unlist(Missing.Q))==0) # Check if any function is missing
   # If Missing.Q is TRUE then load Auxilair functions from external file (should be kept in same working directory!!!)
-  if(Missing.Q){
+  if(!exists("Missing.Q")){
     # Read Working Directory
     # Move to Greater Stored Functions Directory
     setwd(paste(Default.directory,"Auxiliary_Code_and_Functions",sep = "/"))

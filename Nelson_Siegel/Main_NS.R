@@ -23,7 +23,11 @@ spliceddata<-YC.DEU
 #-----------------------------------------------#
 # Initializations
 wd<-getwd()
+wd<-"/scratch/users/kratsioa/Dropbox/Numerics/Deep_Arbitrage_Free_Regularization/Full_Version/Nelson_Siegel"
 source(paste(wd,"Initializations.R",sep="/")) # Initialize
+
+# Vascicek
+source(paste(wd,"Vasicek_HJM_Kalmna_full.R",sep="/"))
 
 # Nelson-Siegel Models
 source(paste(wd,"NS_Kalman_full.R",sep="/")) # Nelson-Siegel Model
@@ -32,8 +36,6 @@ source(paste(wd,"SGD.R",sep="/")) # Loads SGD Code
 source(paste(wd,"Deep_Arbitrage_Free_Regularization_full.R",sep="/")) # AF-Regularization of AFNS
 source(paste(wd,"AFREG_NS_Kalman_full.R",sep="/")) # Compiles Predictive Algorithm
 
-# Vascicek
-source(paste(wd,"Vasicek_HJM_Kalmna_full.R",sep="/"))
 
 # Make & Report Predictions
 source(paste(wd,"Predictions_full.R",sep="/"))
@@ -44,7 +46,7 @@ source(paste(wd,"Predictions_full.R",sep="/"))
 #-----------------------------------------------#
 # dynamic PCA Models
 source(paste(wd,"PCA_Kalman_full.R",sep="/")) # Dynamic PCA Model
-source(paste(wd,("Deep_Arbitrage_Free_Regularization_full_PCA.R",sep="/")) # AF-Regularization of AFNS
+source(paste(wd,"Deep_Arbitrage_Free_Regularization_full_PCA.R",sep="/")) # AF-Regularization of AFNS
 source(paste(wd,"AFREG_dPCA_Kalman_full.R",sep="/")) # Compiles Predictive Algorithm
 
 # Make & Report Predictions
